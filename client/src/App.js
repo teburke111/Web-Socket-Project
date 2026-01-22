@@ -1,10 +1,11 @@
 import './App.css';
 import io from 'socket.io-client';
 import {useEffect, useState} from 'react';
-const socket = io.connect("https://web-socket-project-yqkf.onrender.com");
 
 
 function App() {
+
+  const socket = io.connect("https://web-socket-project-yqkf.onrender.com");
 
   const [message, setMessage] = useState("");
   const [messageRecieved, setMessageRecieved] = useState("");
