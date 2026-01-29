@@ -19,6 +19,8 @@ function App() {
 
   const sendMessage = () => {
     socketRef.current.emit("send_message", {message,user,room});
+    setMessages(prev => [...prev, "Me"]);
+      setUsers(prev => [...prev, message]);
   };
 
   const joinRoom = () => {
