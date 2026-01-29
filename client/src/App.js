@@ -12,7 +12,7 @@ function App() {
   const [user, setUser] = useState("");
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-  const [messageRecieved, setMessageRecieved] = useState("");
+  // const [messageRecieved, setMessageRecieved] = useState("");
   const [room, setRoom] = useState("");
   const [inRoom, setInRoom] = useState(false);
 
