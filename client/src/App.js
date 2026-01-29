@@ -1,43 +1,93 @@
 import './App.css';
 import io from 'socket.io-client';
-import {useEffect, useState} from 'react';
+import Text from './Text';
+import {useEffect, useState, useRef} from 'react';
 
 
 function App() {
 
-  const socket = io.connect("https://web-socket-project-yqkf.onrender.com");
+  const socketRef = useRef(null);
 
   const [message, setMessage] = useState("");
+  const [user, setUser] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
   const [messageRecieved, setMessageRecieved] = useState("");
   const [room, setRoom] = useState("");
+  const [inRoom, setInRoom] = useState(false);
+
 
   const sendMessage = () => {
-    socket.emit("send_message", {message,room});
+    socketRef.current.emit("send_message", {message,user,room});
   };
 
   const joinRoom = () => {
-    if (room !== ""){
-      socket.emit("join_room",room);
+    if (room !== "" && user !== ""){
+      socketRef.current.emit("join_room",room);
+      setMessage("");
+      setInRoom(true);
     }
   }
 
+  const leaveRoom = () => {
+    setRoom("");
+    setInRoom(false);
+    setMessages([]);
+    setUsers([]);
+  }
+
   useEffect(() => {
-    socket.on("recieve_message", (data) => {
-      setMessageRecieved(data.message);
-    })
-  }, [socket]);
+    socketRef.current = io("https://web-socket-project-yqkf.onrender.com");
+
+    socketRef.current.on("recieve_message", (data) => {
+      setMessages(prev => [...prev, data.message]);
+      setUsers(prev => [...prev, data.user]);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
 
   return (
     <div className="App">
-      <input placeholder='Room Number...' onChange={(event) => {
-        setRoom(event.target.value);
-      }}></input>
-      <button onClick={joinRoom}>Join Room</button>
-      <input placeholder='Message...' onChange={(event) => {
-        setMessage(event.target.value);
-      }}></input>
-      <button onClick={sendMessage}>Send Message</button>
-      <h1>{messageRecieved}</h1>
+      <div className='topBar'>
+        {inRoom ? ( 
+          <div className='inRoomBar'>
+            <div>
+              <button onClick={leaveRoom}>Leave Room</button>
+            </div>
+            <div>
+            <input placeholder='Message...' value={message} onChange={(event) => {
+              setMessage(event.target.value);
+            }}></input>
+            <button onClick={sendMessage}>Send Message</button>
+            </div>
+          </div>
+        ) : (
+          <div className='outRoomBar'>
+            <div>
+              <input placeholder='Enter Name...' onChange={(event) => {
+                setUser(event.target.value);
+              }}></input>
+            </div>
+            <div>
+              <input placeholder='Room Number...' value={room} onChange={(event) => {
+                setRoom(event.target.value);
+              }}></input>
+              <button onClick={joinRoom}>Join Room</button>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className='messageBox'>
+        {messages.map((msg, index) => (
+          <Text
+            text={msg}
+            user= {users[index]}
+          />
+        ))}
+      </div>
     </div>
   );
 }
