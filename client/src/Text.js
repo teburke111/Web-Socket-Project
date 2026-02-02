@@ -1,16 +1,15 @@
 import React from 'react'
 
-function Text({text,user}) {
+function Text({ text, user }) {
+  const isMe = user === "Me";
+
   return (
-    <div className='textBox'>
-        <div className='user'>
-            {user}:&nbsp; 
-        </div>
-        <div className='text'>
-            {text}
-        </div>
+    <div className={`textBox ${isMe ? "me" : "other"}`}>
+      {!isMe && <div className="user">{user}</div>}
+      <div>{text}</div>
     </div>
-  )
+  );
 }
 
-export default Text
+export default Text;
+
